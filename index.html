@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TideSync AI — Forecast demand. Maximize revenue.</title>
+<meta name="description" content="TideSync AI predicts upcoming tourist footfall and turns it into simple daily pricing and staffing recommendations for independent hotels, guesthouses and tour operators." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ocean:#1B3B6F;
+    --ocean-700:#16305a;
+    --ocean-900:#0e2244;
+    --ocean-050:#eef2f9;
+    --coral:#F97068;
+    --coral-600:#e85b52;
+    --sand:#F5F5F5;
+    --ink:#12233f;
+    --muted:#5b6b83;
+    --line:#e2e7f0;
+    --white:#ffffff;
+    --radius:18px;
+    --radius-sm:12px;
+    --shadow-sm:0 2px 8px rgba(18,35,63,.06);
+    --shadow:0 18px 44px -18px rgba(18,35,63,.28);
+    --shadow-lg:0 40px 80px -30px rgba(14,34,68,.45);
+    --maxw:1160px;
+    --font-head:'Montserrat',system-ui,sans-serif;
+    --font-body:'Open Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:var(--sand);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4,.font-head{font-family:var(--font-head);line-height:1.12;letter-spacing:-.02em;font-weight:800}
+  a{color:inherit;text-decoration:none}
+  img,svg{display:block;max-width:100%}
+  .wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-head);font-weight:700;font-size:.72rem;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--coral-600);
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--coral)}
+  .section{padding:104px 0;position:relative}
+  .section-head{max-width:720px;margin:0 auto 56px;text-align:center}
+  .section-head h2{font-size:clamp(1.9rem,4vw,2.9rem);margin:14px 0 16px}
+  .section-head p{color:var(--muted);font-size:1.08rem}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    font-family:var(--font-head);font-weight:700;font-size:.95rem;
+    padding:15px 28px;border-radius:999px;border:0;cursor:pointer;
+    transition:transform .25s cubic-bezier(.2,.7,.3,1),box-shadow .25s,background .25s,color .25s;
+    will-change:transform;
+  }
+  .btn:active{transform:translateY(1px) scale(.99)}
+  .btn-primary{background:var(--coral);color:#fff;box-shadow:0 14px 30px -12px rgba(249,112,104,.75)}
+  .btn-primary:hover{background:var(--coral-600);transform:translateY(-2px);box-shadow:0 20px 40px -14px rgba(249,112,104,.85)}
+  .btn-ghost{background:transparent;color:var(--ocean);border:1.6px solid rgba(27,59,111,.22)}
+  .btn-ghost:hover{border-color:var(--ocean);background:rgba(27,59,111,.05);transform:translateY(-2px)}
+  .btn-light{background:#fff;color:var(--ocean);box-shadow:var(--shadow-sm)}
+  .btn-light:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .btn-lg{padding:17px 34px;font-size:1rem}
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    transition:background .35s,box-shadow .35s,backdrop-filter .35s,padding .35s;
+    padding:18px 0;
+  }
+  header.nav.scrolled{background:rgba(245,245,245,.82);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line);padding:11px 0}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--font-head);font-weight:800;font-size:1.14rem;color:#fff;transition:color .35s}
+  header.nav.scrolled .brand{color:var(--ocean)}
+  .brand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--coral),#ff9d8f);display:grid;place-items:center;box-shadow:0 8px 18px -8px rgba(249,112,104,.8)}
+  .nav-links{display:flex;align-items:center;gap:30px}
+  .nav-links a{font-size:.92rem;font-weight:600;color:rgba(255,255,255,.86);transition:color .25s}
+  header.nav.scrolled .nav-links a{color:var(--muted)}
+  .nav-links a:hover{color:var(--coral)}
+  .nav-cta{display:flex;align-items:center;gap:14px}
+  .nav-cta .btn{padding:12px 22px;font-size:.88rem}
+  .burger{display:none;background:none;border:0;cursor:pointer;padding:8px}
+  .burger span{display:block;width:22px;height:2px;background:#fff;margin:5px 0;border-radius:2px;transition:.3s}
+  header.nav.scrolled .burger span{background:var(--ocean)}
+  @media(max-width:900px){
+    .nav-links{display:none}
+    .nav-cta .btn-ghost{display:none}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(1200px 620px at 82% -8%,rgba(249,112,104,.30),transparent 60%),
+      radial-gradient(900px 520px at 6% 108%,rgba(84,132,205,.32),transparent 62%),
+      linear-gradient(165deg,var(--ocean-900) 0%,var(--ocean) 52%,#25508f 100%);
+    color:#fff;padding:150px 0 120px;
+  }
+  .hero .waves{position:absolute;inset:auto 0 -2px 0;width:100%;height:auto;opacity:.5;pointer-events:none}
+  .hero .glow{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;pointer-events:none}
+  .hero .g1{width:420px;height:420px;background:rgba(249,112,104,.5);top:-120px;right:-80px}
+  .hero .g2{width:380px;height:380px;background:rgba(120,170,240,.42);bottom:-140px;left:-100px}
+  .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
+  .hero h1{font-size:clamp(2.5rem,5.6vw,4.15rem);font-weight:900;margin:20px 0 22px}
+  .hero h1 .grad{background:linear-gradient(100deg,#ffd0c9,#F97068 55%,#ffb3aa);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.lede{font-size:1.16rem;color:rgba(255,255,255,.82);max-width:560px;margin-bottom:34px}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .hero-trust{margin-top:38px;display:flex;flex-wrap:wrap;gap:26px}
+  .hero-trust .item{display:flex;align-items:center;gap:10px;font-size:.86rem;color:rgba(255,255,255,.72);font-weight:600}
+  .hero-trust svg{flex:none}
+  .badge{
+    display:inline-flex;align-items:center;gap:9px;padding:8px 16px 8px 9px;border-radius:999px;
+    background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);
+    font-size:.8rem;font-weight:600;color:rgba(255,255,255,.9);backdrop-filter:blur(6px);
+  }
+  .badge .tag{background:var(--coral);color:#fff;font-family:var(--font-head);font-weight:700;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+
+  /* Hero forecast card */
+  .forecast-card{
+    background:rgba(255,255,255,.97);color:var(--ink);
+    border-radius:22px;padding:24px;box-shadow:var(--shadow-lg);
+    border:1px solid rgba(255,255,255,.6);backdrop-filter:blur(10px);
+  }
+  .fc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .fc-top .label{font-family:var(--font-head);font-weight:700;font-size:.82rem;color:var(--muted);letter-spacing:.02em}
+  .fc-pill{font-size:.72rem;font-weight:700;font-family:var(--font-head);color:#0b7a52;background:#e3f6ee;padding:5px 11px;border-radius:999px;display:flex;align-items:center;gap:6px}
+  .fc-chart{display:flex;align-items:flex-end;gap:14px;height:150px;padding:6px 4px 0;border-bottom:2px dashed var(--line);margin-bottom:14px}
+  .fc-bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:8px}
+  .fc-bar .col{width:100%;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#5b86d6,var(--ocean));height:0}
+  .fc-bar.hot .col{background:linear-gradient(180deg,#ff9d8f,var(--coral))}
+  .fc-bar .cap{font-size:.68rem;font-weight:700;color:var(--muted);font-family:var(--font-head)}
+  .fc-bar .val{font-size:.78rem;font-weight:800;color:var(--ocean);font-family:var(--font-head)}
+  .fc-bar.hot .val{color:var(--coral-600)}
+  .fc-note{display:flex;gap:12px;align-items:flex-start;background:var(--ocean-050);border-radius:14px;padding:14px}
+  .fc-note .ic{width:34px;height:34px;flex:none;border-radius:10px;background:var(--coral);display:grid;place-items:center}
+  .fc-note .t{font-size:.83rem;font-weight:700;font-family:var(--font-head);color:var(--ocean);margin-bottom:2px}
+  .fc-note .d{font-size:.82rem;color:var(--muted);line-height:1.5}
+
+  /* ---------- LOGO STRIP ---------- */
+  .logos{padding:44px 0;background:var(--white);border-bottom:1px solid var(--line)}
+  .logos .cap{text-align:center;font-size:.76rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:26px;font-family:var(--font-head)}
+  .marquee{overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+  .marquee-track{display:flex;gap:60px;width:max-content;animation:scroll 34s linear infinite}
+  .marquee:hover .marquee-track{animation-play-state:paused}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+  .logo-item{display:flex;align-items:center;gap:10px;font-family:var(--font-head);font-weight:700;font-size:1.02rem;color:#8b99ad;white-space:nowrap;opacity:.85}
+  .logo-item .mark{width:26px;height:26px;border-radius:8px;background:var(--ocean-050);display:grid;place-items:center;color:var(--ocean);font-size:.8rem}
+  .logo-disclaimer{text-align:center;font-size:.74rem;color:#9aa7ba;margin-top:22px;font-style:italic}
+
+  /* ---------- PROBLEM / SOLUTION ---------- */
+  .prob{background:var(--sand)}
+  .ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch}
+  .ps-col{border-radius:var(--radius);padding:38px 34px}
+  .ps-col h3{font-size:1.42rem;margin-bottom:8px}
+  .ps-col .sub{font-size:.92rem;margin-bottom:26px}
+  .ps-pain{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+  .ps-pain h3{color:var(--ink)}
+  .ps-pain .sub{color:var(--muted)}
+  .ps-fix{background:linear-gradient(160deg,var(--ocean),var(--ocean-900));color:#fff;box-shadow:var(--shadow)}
+  .ps-fix .sub{color:rgba(255,255,255,.72)}
+  .ps-list{list-style:none;display:flex;flex-direction:column;gap:18px}
+  .ps-list li{display:flex;gap:14px;align-items:flex-start;font-size:.96rem}
+  .ps-pain .ps-list li{color:#41516b}
+  .ps-fix .ps-list li{color:rgba(255,255,255,.9)}
+  .ps-list .ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;margin-top:1px}
+  .ps-pain .ic{background:#fdecea;color:var(--coral-600)}
+  .ps-fix .ic{background:rgba(255,255,255,.14);color:#fff}
+  .ps-list strong{font-family:var(--font-head);font-weight:700;display:block;margin-bottom:1px}
+  .ps-pain .ps-list strong{color:var(--ink)}
+  .ps-fix .ps-list strong{color:#fff}
+
+  /* ---------- FEATURES ---------- */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .feat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px 28px;transition:transform .35s cubic-bezier(.2,.7,.3,1),box-shadow .35s,border-color .35s;position:relative;overflow:hidden}
+  .feat:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:transparent}
+  .feat::after{content:"";position:absolute;left:0;top:0;height:3px;width:0;background:linear-gradient(90deg,var(--coral),#ff9d8f);transition:width .4s}
+  .feat:hover::after{width:100%}
+  .feat .ic{width:52px;height:52px;border-radius:14px;background:var(--ocean-050);display:grid;place-items:center;margin-bottom:20px;color:var(--ocean);transition:background .35s,color .35s,transform .35s}
+  .feat:hover .ic{background:var(--coral);color:#fff;transform:rotate(-4deg) scale(1.05)}
+  .feat h4{font-size:1.1rem;margin-bottom:9px;color:var(--ocean)}
+  .feat p{font-size:.93rem;color:var(--muted)}
+  .feat .kpi{margin-top:16px;font-family:var(--font-head);font-weight:800;font-size:.82rem;color:var(--coral-600)}
+
+  /* ---------- DEMO ---------- */
+  .demo{background:linear-gradient(180deg,var(--ocean-900),var(--ocean));color:#fff;overflow:hidden}
+  .demo .section-head h2{color:#fff}
+  .demo .section-head p{color:rgba(255,255,255,.72)}
+  .demo .eyebrow{color:#ffb3aa}
+  .demo-shell{display:grid;grid-template-columns:1fr 1.15fr;gap:26px;align-items:stretch}
+  .panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:var(--radius);padding:28px;backdrop-filter:blur(8px)}
+  .panel h4{font-size:1.05rem;margin-bottom:4px;color:#fff}
+  .panel .hint{font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:24px}
+  .field{margin-bottom:22px}
+  .field .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+  .field label{font-size:.86rem;font-weight:600;color:rgba(255,255,255,.9)}
+  .field .v{font-family:var(--font-head);font-weight:700;font-size:.9rem;color:var(--coral)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:rgba(255,255,255,.18);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:4px solid var(--coral);cursor:pointer;box-shadow:0 4px 12px -2px rgba(0,0,0,.4);transition:transform .15s}
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:4px solid var(--coral);cursor:pointer}
+  .seg{display:inline-flex;background:rgba(255,255,255,.08);border-radius:999px;padding:5px;gap:4px;margin-bottom:22px}
+  .seg button{font-family:var(--font-head);font-weight:700;font-size:.82rem;padding:8px 18px;border-radius:999px;border:0;background:transparent;color:rgba(255,255,255,.7);cursor:pointer;transition:.25s}
+  .seg button.on{background:var(--coral);color:#fff}
+  .out-panel{background:#fff;color:var(--ink);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column}
+  .out-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .out-head .t{font-family:var(--font-head);font-weight:700;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .out-head .big{font-family:var(--font-head);font-weight:900;font-size:2.6rem;color:var(--ocean);line-height:1;margin-top:6px}
+  .out-head .big small{font-size:1.1rem;font-weight:700;color:var(--muted)}
+  .conf{text-align:right}
+  .conf .n{font-family:var(--font-head);font-weight:800;font-size:1.3rem;color:#0b7a52}
+  .conf .l{font-size:.72rem;color:var(--muted);font-weight:600}
+  .out-chart{display:flex;align-items:flex-end;gap:16px;height:132px;padding-bottom:6px;border-bottom:2px dashed var(--line);margin-bottom:20px}
+  .oc-bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;height:100%}
+  .oc-bar .c{width:100%;max-width:64px;border-radius:9px 9px 0 0;background:linear-gradient(180deg,#6f97df,var(--ocean));height:6%;transition:height .55s cubic-bezier(.2,.8,.25,1),background .3s}
+  .oc-bar.hot .c{background:linear-gradient(180deg,#ff9d8f,var(--coral))}
+  .oc-bar .lbl{font-size:.74rem;font-weight:700;color:var(--muted);font-family:var(--font-head)}
+  .oc-bar .pc{font-family:var(--font-head);font-weight:800;font-size:.82rem;color:var(--ocean)}
+  .oc-bar.hot .pc{color:var(--coral-600)}
+  .recs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .rec{background:var(--ocean-050);border-radius:14px;padding:16px}
+  .rec .l{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-family:var(--font-head);margin-bottom:5px}
+  .rec .v{font-family:var(--font-head);font-weight:800;font-size:1.28rem;color:var(--ocean)}
+  .rec .d{font-size:.78rem;color:var(--muted);margin-top:3px}
+  .rec .d.up{color:#0b7a52;font-weight:600}
+  .rec .d.down{color:var(--coral-600);font-weight:600}
+  .staffbar{display:flex;gap:4px;margin-top:9px}
+  .staffbar i{height:8px;flex:1;border-radius:3px;background:rgba(27,59,111,.14)}
+  .staffbar i.on{background:var(--coral)}
+  .demo-foot{font-size:.76rem;color:var(--muted);margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+
+  /* ---------- TESTIMONIALS ---------- */
+  .proof{background:var(--sand)}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-bottom:60px}
+  .stat{text-align:center;padding:26px 18px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+  .stat .n{font-family:var(--font-head);font-weight:900;font-size:2.5rem;color:var(--ocean);line-height:1}
+  .stat .n span{color:var(--coral)}
+  .stat .l{font-size:.86rem;color:var(--muted);margin-top:8px;font-weight:600}
+  .tst-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .tst{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px 28px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:18px;transition:transform .35s,box-shadow .35s}
+  .tst:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+  .tst .quote{font-size:.98rem;color:#33445f;flex:1}
+  .tst .stars{color:#f5a623;letter-spacing:2px;font-size:.9rem}
+  .tst .who{display:flex;align-items:center;gap:12px}
+  .tst .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(140deg,var(--ocean),#4a7ac0);color:#fff;display:grid;place-items:center;font-family:var(--font-head);font-weight:800;font-size:.95rem;flex:none}
+  .tst .who .nm{font-family:var(--font-head);font-weight:700;font-size:.92rem;color:var(--ocean)}
+  .tst .who .rl{font-size:.8rem;color:var(--muted)}
+  .proof-disclaimer{text-align:center;font-size:.78rem;color:#9aa7ba;margin-top:34px;font-style:italic;max-width:640px;margin-left:auto;margin-right:auto}
+
+  /* ---------- PRICING ---------- */
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start}
+  .plan{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:34px 30px;box-shadow:var(--shadow-sm);transition:transform .35s,box-shadow .35s;position:relative;display:flex;flex-direction:column}
+  .plan:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+  .plan.featured{background:linear-gradient(165deg,var(--ocean),var(--ocean-900));color:#fff;border-color:transparent;box-shadow:var(--shadow-lg);transform:translateY(-10px)}
+  .plan.featured:hover{transform:translateY(-16px)}
+  .plan .ribbon{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--coral);color:#fff;font-family:var(--font-head);font-weight:700;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 16px;border-radius:999px;box-shadow:0 8px 18px -8px rgba(249,112,104,.9)}
+  .plan h4{font-size:1.15rem;margin-bottom:6px}
+  .plan .tier-sub{font-size:.86rem;color:var(--muted);margin-bottom:22px;min-height:38px}
+  .plan.featured .tier-sub{color:rgba(255,255,255,.72)}
+  .plan .amt{font-family:var(--font-head);font-weight:900;font-size:2.6rem;line-height:1;color:var(--ocean)}
+  .plan.featured .amt{color:#fff}
+  .plan .amt small{font-size:.9rem;font-weight:600;color:var(--muted)}
+  .plan.featured .amt small{color:rgba(255,255,255,.7)}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin:24px 0 28px;flex:1}
+  .plan li{display:flex;gap:11px;font-size:.91rem;color:#41516b;align-items:flex-start}
+  .plan.featured li{color:rgba(255,255,255,.9)}
+  .plan li svg{flex:none;margin-top:3px}
+  .plan .btn{width:100%}
+
+  /* ---------- WAITLIST ---------- */
+  .waitlist{background:linear-gradient(165deg,var(--ocean-900),var(--ocean));color:#fff;position:relative;overflow:hidden}
+  .waitlist .g1{position:absolute;width:460px;height:460px;background:rgba(249,112,104,.4);border-radius:50%;filter:blur(80px);top:-160px;left:-120px}
+  .waitlist .g2{position:absolute;width:400px;height:400px;background:rgba(120,170,240,.35);border-radius:50%;filter:blur(80px);bottom:-160px;right:-100px}
+  .wl-inner{position:relative;z-index:2;max-width:680px;margin:0 auto;text-align:center}
+  .wl-inner h2{font-size:clamp(2rem,4.4vw,3rem);color:#fff;margin-bottom:16px}
+  .wl-inner p{color:rgba(255,255,255,.8);font-size:1.08rem;margin-bottom:34px}
+  .wl-form{display:flex;gap:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:8px;border-radius:999px;backdrop-filter:blur(8px);transition:border-color .3s}
+  .wl-form.err{border-color:var(--coral)}
+  .wl-form input{flex:1;background:transparent;border:0;outline:none;color:#fff;font-family:var(--font-body);font-size:1rem;padding:12px 20px}
+  .wl-form input::placeholder{color:rgba(255,255,255,.55)}
+  .wl-form .btn{flex:none}
+  .wl-msg{font-size:.86rem;margin-top:14px;min-height:20px;color:#ffb3aa;font-weight:600}
+  .wl-success{display:none;align-items:center;justify-content:center;gap:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:var(--radius);padding:26px;backdrop-filter:blur(8px)}
+  .wl-success .ic{width:46px;height:46px;border-radius:50%;background:#0b7a52;display:grid;place-items:center;flex:none}
+  .wl-success .t{font-family:var(--font-head);font-weight:800;font-size:1.1rem;text-align:left}
+  .wl-success .d{font-size:.88rem;color:rgba(255,255,255,.78);text-align:left}
+  .wl-micro{margin-top:20px;font-size:.8rem;color:rgba(255,255,255,.6)}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ocean-900);color:rgba(255,255,255,.7);padding:60px 0 34px}
+  .foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,.12)}
+  .foot-brand .brand{color:#fff;margin-bottom:14px}
+  .foot-brand p{font-size:.9rem;max-width:300px;color:rgba(255,255,255,.6)}
+  .foot-col h5{font-family:var(--font-head);font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:16px}
+  .foot-col a{display:block;font-size:.9rem;margin-bottom:11px;color:rgba(255,255,255,.65);transition:color .25s}
+  .foot-col a:hover{color:var(--coral)}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:26px;flex-wrap:wrap;font-size:.82rem;color:rgba(255,255,255,.5)}
+
+  /* reveal helper */
+  .reveal{will-change:transform,opacity}
+
+  @media(max-width:980px){
+    .hero-grid{grid-template-columns:1fr;gap:48px}
+    .forecast-card{max-width:520px}
+    .ps-grid,.demo-shell{grid-template-columns:1fr}
+    .feat-grid,.tst-grid,.price-grid{grid-template-columns:1fr 1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .plan.featured{transform:none}
+  }
+  @media(max-width:640px){
+    .section{padding:72px 0}
+    .feat-grid,.tst-grid,.price-grid,.stats{grid-template-columns:1fr}
+    .recs{grid-template-columns:1fr}
+    .wl-form{flex-direction:column;border-radius:20px}
+    .wl-form input{text-align:center}
+    .hero{padding:130px 0 90px}
+    .foot-grid{grid-template-columns:1fr}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand">
+      <span class="mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 14c2.5-3 4.5-3 7 0s4.5 3 7 0 4.5-3 6 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M2 9c2.5-3 4.5-3 7 0s4.5 3 7 0 4.5-3 6 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".55"/></svg>
+      </span>
+      TideSync AI
+    </a>
+    <nav class="nav-links">
+      <a href="#problem">Why TideSync</a>
+      <a href="#features">Features</a>
+      <a href="#demo">Live demo</a>
+      <a href="#proof">Results</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#demo" class="btn btn-ghost">Try the demo</a>
+      <a href="#waitlist" class="btn btn-primary">Join waitlist</a>
+      <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="badge reveal" data-hero>
+        <span class="tag">New</span>
+        Demand intelligence built for independent operators
+      </span>
+      <h1 data-hero>Forecast demand.<br /><span class="grad">Maximize revenue.</span></h1>
+      <p class="lede" data-hero>
+        TideSync AI predicts upcoming tourist footfall for your destination and turns it into
+        simple, daily pricing and staffing recommendations — so you never underprice a surge
+        or overstaff a lull again.
+      </p>
+      <div class="hero-cta" data-hero>
+        <a href="#waitlist" class="btn btn-primary btn-lg">
+          Join the waitlist
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#demo" class="btn btn-light btn-lg">See a live forecast</a>
+      </div>
+      <div class="hero-trust" data-hero>
+        <div class="item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          No analyst required
+        </div>
+        <div class="item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          30 / 60 / 90-day outlooks
+        </div>
+        <div class="item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Set up in under an hour
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero forecast card -->
+    <div class="forecast-card reveal" data-hero-card>
+      <div class="fc-top">
+        <span class="label">Occupancy outlook · North Goa</span>
+        <span class="fc-pill">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Demand rising
+        </span>
+      </div>
+      <div class="fc-chart" id="heroChart">
+        <div class="fc-bar" data-h="52"><span class="val">52%</span><span class="col"></span><span class="cap">30d</span></div>
+        <div class="fc-bar" data-h="68"><span class="val">68%</span><span class="col"></span><span class="cap">45d</span></div>
+        <div class="fc-bar hot" data-h="91"><span class="val">91%</span><span class="col"></span><span class="cap">60d</span></div>
+        <div class="fc-bar hot" data-h="88"><span class="val">88%</span><span class="col"></span><span class="cap">75d</span></div>
+        <div class="fc-bar" data-h="61"><span class="val">61%</span><span class="col"></span><span class="cap">90d</span></div>
+      </div>
+      <div class="fc-note">
+        <span class="ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.6" stroke="#fff" stroke-width="2"/></svg>
+        </span>
+        <div>
+          <div class="t">Peak detected in 58 days</div>
+          <div class="d">Raise nightly rate by ~18% and add 2 housekeeping shifts. A local festival plus rising flight searches are driving the surge.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <svg class="waves" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 60c180 40 360 40 540 0s360-40 540 0 360 40 540 0v60H0z" fill="#F5F5F5"/>
+  </svg>
+</section>
+
+<!-- ================= LOGO STRIP ================= -->
+<section class="logos">
+  <div class="wrap">
+    <div class="cap">Designed for operators across coastal, hill-station &amp; heritage destinations</div>
+    <div class="marquee">
+      <div class="marquee-track" id="marqueeTrack">
+        <!-- filled by JS (duplicated for seamless loop) -->
+      </div>
+    </div>
+    <div class="logo-disclaimer">Partner names shown are illustrative examples for this prototype.</div>
+  </div>
+</section>
+
+<!-- ================= PROBLEM / SOLUTION ================= -->
+<section class="section prob" id="problem">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="dot"></span>The seasonal squeeze</span>
+      <h2>Tourism demand moves fast. Spreadsheets don't.</h2>
+      <p>Independent operators lose money on both sides of the curve — and the tools built to fix it were never made for a ten-room guesthouse.</p>
+    </div>
+    <div class="ps-grid">
+      <div class="ps-col ps-pain reveal">
+        <h3>Without TideSync</h3>
+        <p class="sub">Guesswork across the whole season.</p>
+        <ul class="ps-list">
+          <li>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Underpriced surge nights</strong>You hold last month's rate the week a festival fills the town — leaving real revenue on the table.</div>
+          </li>
+          <li>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Overstaffed quiet weeks</strong>Staff rostered for a peak that never arrives, burning margin during sudden off-season lulls.</div>
+          </li>
+          <li>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>No signal until it's too late</strong>By the time the booking spike shows up, the dates are already sold — or already empty.</div>
+          </li>
+          <li>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Enterprise tools you can't use</strong>Revenue-management suites assume a dedicated analyst you don't have and can't afford.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="ps-col ps-fix reveal">
+        <h3>With TideSync AI</h3>
+        <p class="sub">A clear signal for every day of the season.</p>
+        <ul class="ps-list">
+          <li>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Surges spotted weeks ahead</strong>30, 60 and 90-day forecasts flag demand before it hits your calendar.</div>
+          </li>
+          <li>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Rates that move with demand</strong>Automatic pricing suggestions tell you when to raise — and by how much.</div>
+          </li>
+          <li>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Staffing that matches the week</strong>Roster guidance cuts idle shifts during lulls and prevents bottlenecks at peaks.</div>
+          </li>
+          <li>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>One plain-language answer a day</strong>No dashboards to decode — just a clear recommendation you can act on.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="section" id="features" style="background:#fff">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Key features &amp; benefits</span>
+      <h2>Enterprise-grade forecasting, guesthouse-simple</h2>
+      <p>Everything the big chains use to price and staff their hotels — rebuilt around the realities of a small, seasonal, independent business.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat reveal">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 4 4 9-9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h6v6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <h4>Multi-horizon demand forecasts</h4>
+        <p>Rolling 30, 60 and 90-day occupancy projections, refreshed as new bookings and signals arrive.</p>
+        <div class="kpi">3 forecast horizons</div>
+      </div>
+      <div class="feat reveal">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="3" stroke="currentColor" stroke-width="2.2"/><path d="M3 9h18M8 2v4M16 2v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+        <h4>Local event intelligence</h4>
+        <p>Festivals, concerts and long weekends near you are woven into the model, so spikes never sneak up.</p>
+        <div class="kpi">Event-aware</div>
+      </div>
+      <div class="feat reveal">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M18 10a6 6 0 10-12 0c0 5-2 6-2 6h16s-2-1-2-6z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M10 20a2 2 0 004 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+        <h4>Weather &amp; flight-search signals</h4>
+        <p>Regional weather outlooks and rising flight-search interest feed the forecast before bookings land.</p>
+        <div class="kpi">External signals</div>
+      </div>
+      <div class="feat reveal">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+        <h4>Dynamic pricing suggestions</h4>
+        <p>Clear nightly-rate recommendations that flex with predicted demand — raise on surges, protect on lulls.</p>
+        <div class="kpi">Auto rate guidance</div>
+      </div>
+      <div class="feat reveal">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="2.2"/><path d="M3 20a6 6 0 0112 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M16 6.5a3 3 0 010 5.8M18 20a6 6 0 00-2.2-4.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+        <h4>Staffing &amp; roster guidance</h4>
+        <p>Right-size shifts to each week's expected footfall — fewer idle hours, no peak-night bottlenecks.</p>
+        <div class="kpi">Ops efficiency</div>
+      </div>
+      <div class="feat reveal">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
+        <h4>Plain-language daily actions</h4>
+        <p>Complex predictive data translated into one simple recommendation a day. No analyst, no jargon.</p>
+        <div class="kpi">Zero training needed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEMO ================= -->
+<section class="section demo" id="demo">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Interactive preview</span>
+      <h2>See the forecast think</h2>
+      <p>Adjust the signals below — exactly like the live product does — and watch TideSync turn them into a pricing and staffing recommendation.</p>
+    </div>
+    <div class="demo-shell">
+      <!-- Controls -->
+      <div class="panel reveal">
+        <h4>Your signals</h4>
+        <p class="hint">Illustrative model for demo purposes.</p>
+
+        <div class="seg" id="horizonSeg" role="tablist">
+          <button data-days="30" class="on">30 days</button>
+          <button data-days="60">60 days</button>
+          <button data-days="90">90 days</button>
+        </div>
+
+        <div class="field">
+          <div class="row"><label for="fBase">Current base occupancy</label><span class="v" id="vBase">64%</span></div>
+          <input type="range" id="fBase" min="35" max="90" value="64" step="1" />
+        </div>
+        <div class="field">
+          <div class="row"><label for="fEvent">Local event impact</label><span class="v" id="vEvent">Medium</span></div>
+          <input type="range" id="fEvent" min="0" max="100" value="45" step="1" />
+        </div>
+        <div class="field">
+          <div class="row"><label for="fWeather">Weather outlook</label><span class="v" id="vWeather">Fair</span></div>
+          <input type="range" id="fWeather" min="-20" max="20" value="6" step="1" />
+        </div>
+        <div class="field">
+          <div class="row"><label for="fFlight">Flight-search trend</label><span class="v" id="vFlight">+18%</span></div>
+          <input type="range" id="fFlight" min="-30" max="40" value="18" step="1" />
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="row"><label for="fRate">Current average nightly rate</label><span class="v" id="vRate">₹4,800</span></div>
+          <input type="range" id="fRate" min="1500" max="15000" value="4800" step="100" />
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="out-panel reveal">
+        <div class="out-head">
+          <div>
+            <div class="t" id="outHorizon">Predicted occupancy · next 30 days</div>
+            <div class="big"><span id="outOcc">78</span><small>%</small></div>
+          </div>
+          <div class="conf">
+            <div class="n" id="outConf">92%</div>
+            <div class="l">model confidence</div>
+          </div>
+        </div>
+
+        <div class="out-chart" id="outChart">
+          <div class="oc-bar" data-i="0"><span class="pc">–</span><span class="c"></span><span class="lbl">30d</span></div>
+          <div class="oc-bar" data-i="1"><span class="pc">–</span><span class="c"></span><span class="lbl">60d</span></div>
+          <div class="oc-bar" data-i="2"><span class="pc">–</span><span class="c"></span><span class="lbl">90d</span></div>
+        </div>
+
+        <div class="recs">
+          <div class="rec">
+            <div class="l">Recommended nightly rate</div>
+            <div class="v" id="outRate">₹5,660</div>
+            <div class="d up" id="outRateDelta">▲ 18% vs today</div>
+          </div>
+          <div class="rec">
+            <div class="l">Staff to schedule</div>
+            <div class="v" id="outStaff">6 of 8</div>
+            <div class="d" id="outStaffNote">Cover for a busy stretch</div>
+            <div class="staffbar" id="staffBar"></div>
+          </div>
+        </div>
+
+        <div class="demo-foot" id="outAdvice">
+          Demand is trending above your baseline — hold your rate firm and add coverage for the peak nights.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SOCIAL PROOF ================= -->
+<section class="section proof" id="proof">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Results &amp; social proof</span>
+      <h2>Operators stop guessing, start gaining</h2>
+      <p>Early-access results from independent properties and excursion operators testing TideSync through a full season.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat reveal"><div class="n"><span data-count="23">0</span><span>%</span></div><div class="l">Average revenue lift in peak weeks</div></div>
+      <div class="stat reveal"><div class="n"><span data-count="31">0</span><span>%</span></div><div class="l">Fewer wasted staff-hours in lulls</div></div>
+      <div class="stat reveal"><div class="n"><span data-count="94">0</span><span>%</span></div><div class="l">Forecast accuracy at 30 days</div></div>
+      <div class="stat reveal"><div class="n"><span data-count="45">0</span><span>min</span></div><div class="l">Typical setup time</div></div>
+    </div>
+
+    <div class="tst-grid">
+      <div class="tst reveal">
+        <div class="stars">★★★★★</div>
+        <p class="quote">"We used to find out about the festival rush when our phone started ringing. TideSync told us three weeks early — we raised rates and still sold out."</p>
+        <div class="who"><span class="av">AM</span><div><div class="nm">Ana Mendes</div><div class="rl">Owner, 12-room guesthouse · Goa</div></div></div>
+      </div>
+      <div class="tst reveal">
+        <div class="stars">★★★★★</div>
+        <p class="quote">"The staffing suggestions alone paid for it. I stopped rostering a full team through the dead weeks without hurting peak service."</p>
+        <div class="who"><span class="av">RK</span><div><div class="nm">Rohit Kulkarni</div><div class="rl">Manager, boutique hotel · Lonavala</div></div></div>
+      </div>
+      <div class="tst reveal">
+        <div class="stars">★★★★★</div>
+        <p class="quote">"I'm a tour operator, not a data person. It gives me one clear call each morning — that's all I ever wanted."</p>
+        <div class="who"><span class="av">LN</span><div><div class="nm">Lucia Nunes</div><div class="rl">Founder, coastal excursions · Algarve</div></div></div>
+      </div>
+    </div>
+
+    <div class="proof-disclaimer">Testimonials, names and figures shown are illustrative samples for this prototype and do not represent real customers.</div>
+  </div>
+</section>
+
+<!-- ================= PRICING ================= -->
+<section class="section" id="pricing" style="background:#fff">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="dot"></span>Pricing</span>
+      <h2>Priced for independents, not head offices</h2>
+      <p>Simple monthly plans. No revenue manager, no analyst, no long contract. Cancel anytime.</p>
+    </div>
+    <div class="price-grid">
+      <div class="plan reveal">
+        <h4>Solo</h4>
+        <p class="tier-sub">For a single guesthouse or B&amp;B getting started with forecasting.</p>
+        <div class="amt">₹1,499<small>/mo</small></div>
+        <ul>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>30-day occupancy forecast</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Daily rate recommendations</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Local event calendar</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Email support</li>
+        </ul>
+        <a href="#waitlist" class="btn btn-ghost">Join waitlist</a>
+      </div>
+
+      <div class="plan featured reveal">
+        <span class="ribbon">Most popular</span>
+        <h4>Operator</h4>
+        <p class="tier-sub">For properties ready to price and staff dynamically all season.</p>
+        <div class="amt">₹3,999<small>/mo</small></div>
+        <ul>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>30 / 60 / 90-day forecasts</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Dynamic pricing suggestions</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Staffing &amp; roster guidance</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Weather &amp; flight-search signals</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Priority chat support</li>
+        </ul>
+        <a href="#waitlist" class="btn btn-primary">Join waitlist</a>
+      </div>
+
+      <div class="plan reveal">
+        <h4>Group</h4>
+        <p class="tier-sub">For operators running multiple properties or a portfolio of excursions.</p>
+        <div class="amt">Custom</div>
+        <ul>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Multi-property dashboard</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Custom signal weighting</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>API &amp; channel-manager hooks</li>
+          <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#F97068" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Dedicated onboarding</li>
+        </ul>
+        <a href="#waitlist" class="btn btn-ghost">Talk to us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WAITLIST ================= -->
+<section class="section waitlist" id="waitlist">
+  <div class="g1"></div>
+  <div class="g2"></div>
+  <div class="wrap wl-inner reveal">
+    <span class="eyebrow" style="color:#ffb3aa"><span class="dot"></span>Early access</span>
+    <h2>Join the waitlist</h2>
+    <p>Be first to forecast your season with TideSync AI. Early members get onboarding help and founding-member pricing.</p>
+
+    <form class="wl-form" id="wlForm" novalidate>
+      <input type="email" id="wlEmail" placeholder="you@yourproperty.com" aria-label="Email address" autocomplete="email" />
+      <button type="submit" class="btn btn-primary">Get early access</button>
+    </form>
+    <div class="wl-msg" id="wlMsg" role="status" aria-live="polite"></div>
+
+    <div class="wl-success" id="wlSuccess">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div>
+        <div class="t">You're on the list</div>
+        <div class="d">We'll email <span id="wlEcho"></span> as soon as your early-access spot opens up.</div>
+      </div>
+    </div>
+
+    <div class="wl-micro">No spam. One email when your access is ready — unsubscribe anytime.</div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#top" class="brand">
+          <span class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 14c2.5-3 4.5-3 7 0s4.5 3 7 0 4.5-3 6 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M2 9c2.5-3 4.5-3 7 0s4.5 3 7 0 4.5-3 6 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".55"/></svg></span>
+          TideSync AI
+        </a>
+        <p>Forecast demand. Maximize revenue. Accessible, enterprise-grade forecasting for independent tourism businesses.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Product</h5>
+        <a href="#features">Features</a>
+        <a href="#demo">Live demo</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#waitlist">Waitlist</a>
+      </div>
+      <div class="foot-col">
+        <h5>Company</h5>
+        <a href="#problem">Why TideSync</a>
+        <a href="#proof">Results</a>
+        <a href="#waitlist">Contact</a>
+      </div>
+      <div class="foot-col">
+        <h5>Resources</h5>
+        <a href="#demo">Forecast guide</a>
+        <a href="#pricing">For operators</a>
+        <a href="#waitlist">Early access</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="yr"></span> TideSync AI. All rights reserved.</span>
+      <span>Made for independent operators.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var hasGSAP = typeof window.gsap !== "undefined";
+  if (hasGSAP && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------- Nav scroll state ---------- */
+  var nav = document.getElementById("nav");
+  function onScroll() { nav.classList.toggle("scrolled", window.scrollY > 24); }
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  document.getElementById("yr").textContent = new Date().getFullYear();
+
+  /* ---------- Logo marquee ---------- */
+  var partners = [
+    "Casa Maré", "Hillcrest Stays", "Blue Bay Guesthouse", "Sunset Excursions",
+    "The Mango Grove", "Harbour Light Inn", "Verdant Trails", "Cove & Coast Tours",
+    "Palm Court Residency", "Backwater Journeys"
+  ];
+  var track = document.getElementById("marqueeTrack");
+  var html = partners.map(function (n) {
+    return '<div class="logo-item"><span class="mark">' +
+      n.charAt(0) + "</span>" + n + "</div>";
+  }).join("");
+  track.innerHTML = html + html; /* duplicate for seamless loop */
+
+  /* ---------- Hero bars ---------- */
+  var heroBars = document.querySelectorAll("#heroChart .fc-bar .col");
+  function heroAnimate() {
+    heroBars.forEach(function (col, i) {
+      var bar = col.closest(".fc-bar");
+      var h = bar.getAttribute("data-h");
+      if (hasGSAP && !reduce) {
+        gsap.to(col, { height: h + "%", duration: 1, delay: 0.25 + i * 0.09, ease: "power3.out" });
+      } else {
+        col.style.height = h + "%";
+      }
+    });
+  }
+
+  /* ---------- Scroll reveals ---------- */
+  var revealEls = document.querySelectorAll(".reveal");
+  function fallbackReveal() {
+    revealEls.forEach(function (el) { el.style.opacity = 1; el.style.transform = "none"; });
+  }
+
+  if (hasGSAP && !reduce) {
+    /* hero entrance */
+    var tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    tl.from("[data-hero]", { y: 26, opacity: 0, duration: 0.7, stagger: 0.1 })
+      .from("[data-hero-card]", { y: 40, opacity: 0, duration: 0.9 }, "-=0.5")
+      .add(heroAnimate, "-=0.55");
+
+    revealEls.forEach(function (el) {
+      gsap.fromTo(el,
+        { y: 34, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 0.8, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 86%", once: true }
+        }
+      );
+    });
+  } else {
+    fallbackReveal();
+    heroAnimate();
+  }
+
+  /* ---------- Stat counters ---------- */
+  function animateCount(el) {
+    var target = parseInt(el.getAttribute("data-count"), 10);
+    var dur = 1400, start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var counters = document.querySelectorAll("[data-count]");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { animateCount(e.target); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(function (c) { io.observe(c); });
+  } else {
+    counters.forEach(function (c) { c.textContent = c.getAttribute("data-count"); });
+  }
+
+  /* ============================================================
+     INTERACTIVE DEMO ENGINE
+     Illustrative deterministic model (not the production ML model).
+     ============================================================ */
+  var state = { days: 30, base: 64, event: 45, weather: 6, flight: 18, rate: 4800 };
+  var MAX_STAFF = 8;
+
+  var elBase = document.getElementById("fBase");
+  var elEvent = document.getElementById("fEvent");
+  var elWeather = document.getElementById("fWeather");
+  var elFlight = document.getElementById("fFlight");
+  var elRate = document.getElementById("fRate");
+
+  var vBase = document.getElementById("vBase");
+  var vEvent = document.getElementById("vEvent");
+  var vWeather = document.getElementById("vWeather");
+  var vFlight = document.getElementById("vFlight");
+  var vRate = document.getElementById("vRate");
+
+  var outOcc = document.getElementById("outOcc");
+  var outConf = document.getElementById("outConf");
+  var outHorizon = document.getElementById("outHorizon");
+  var outRate = document.getElementById("outRate");
+  var outRateDelta = document.getElementById("outRateDelta");
+  var outStaff = document.getElementById("outStaff");
+  var outStaffNote = document.getElementById("outStaffNote");
+  var outAdvice = document.getElementById("outAdvice");
+  var staffBar = document.getElementById("staffBar");
+  var outBars = document.querySelectorAll("#outChart .oc-bar");
+
+  function fmtINR(n) { return "₹" + Math.round(n).toLocaleString("en-IN"); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  function weatherWord(w) {
+    if (w <= -12) return "Poor";
+    if (w < 0) return "Mixed";
+    if (w < 10) return "Fair";
+    return "Excellent";
+  }
+  function eventWord(e) {
+    if (e < 25) return "Low";
+    if (e < 60) return "Medium";
+    return "High";
+  }
+
+  /* Occupancy for a given horizon offset (0=30d,1=60d,2=90d) */
+  function occupancyFor(offset) {
+    var eventBoost = (state.event / 100) * 24;         // 0..24 pts
+    var weatherDelta = state.weather * 0.45;           // -9..+9 pts
+    var flightDelta = state.flight * 0.28;             // -8.4..+11.2 pts
+    var horizonDrift = [-1, 0.5, 2][offset];           // season builds further out
+    var occ = state.base + eventBoost + weatherDelta + flightDelta + horizonDrift;
+    return clamp(occ, 18, 99);
+  }
+
+  function confidenceFor(offset) {
+    // further horizons = less certain; noisier signals reduce confidence
+    var spread = (Math.abs(state.flight) + Math.abs(state.weather) + state.event) / 3;
+    var base = [94, 88, 81][offset];
+    return clamp(Math.round(base - spread * 0.12), 62, 97);
+  }
+
+  function render() {
+    /* horizon occupancy set */
+    var occs = [occupancyFor(0), occupancyFor(1), occupancyFor(2)];
+    var activeOcc = occupancyFor(state.days === 30 ? 0 : state.days === 60 ? 1 : 2);
+    var activeConf = confidenceFor(state.days === 30 ? 0 : state.days === 60 ? 1 : 2);
+
+    /* headline */
+    outOcc.textContent = Math.round(activeOcc);
+    outConf.textContent = activeConf + "%";
+    outHorizon.textContent = "Predicted occupancy · next " + state.days + " days";
+
+    /* rate recommendation */
+    var lift = activeOcc - state.base;               // pts above baseline
+    var mult = clamp(1 + lift / 100 * 1.25, 0.82, 1.65);
+    var recRate = state.rate * mult;
+    outRate.textContent = fmtINR(recRate);
+    var pct = Math.round((mult - 1) * 100);
+    if (pct >= 0) {
+      outRateDelta.className = "d up";
+      outRateDelta.textContent = "▲ " + pct + "% vs today";
+    } else {
+      outRateDelta.className = "d down";
+      outRateDelta.textContent = "▼ " + Math.abs(pct) + "% vs today";
+    }
+
+    /* staffing */
+    var staff = clamp(Math.round((activeOcc / 100) * MAX_STAFF + 0.6), 2, MAX_STAFF);
+    outStaff.textContent = staff + " of " + MAX_STAFF;
+    if (activeOcc >= 82) outStaffNote.textContent = "Add coverage for peak nights";
+    else if (activeOcc >= 66) outStaffNote.textContent = "Cover for a busy stretch";
+    else outStaffNote.textContent = "Trim idle shifts this period";
+
+    /* staff bars */
+    var bars = "";
+    for (var i = 0; i < MAX_STAFF; i++) bars += '<i class="' + (i < staff ? "on" : "") + '"></i>';
+    staffBar.innerHTML = bars;
+
+    /* chart */
+    outBars.forEach(function (bar, i) {
+      var val = Math.round(occs[i]);
+      bar.querySelector(".pc").textContent = val + "%";
+      bar.classList.toggle("hot", val >= 80);
+      var h = clamp(val, 8, 100);
+      var c = bar.querySelector(".c");
+      if (hasGSAP && !reduce) {
+        gsap.to(c, { height: h + "%", duration: 0.5, ease: "power3.out" });
+      } else {
+        c.style.height = h + "%";
+      }
+    });
+
+    /* advice line */
+    var advice;
+    if (activeOcc >= 85) advice = "Strong surge ahead — raise your rate confidently and staff up for the peak nights.";
+    else if (activeOcc >= 72) advice = "Demand is trending above your baseline — hold firm on rate and add coverage for busy stretches.";
+    else if (activeOcc >= 58) advice = "Steady demand expected — keep rates level and maintain standard staffing.";
+    else advice = "Quiet stretch forecast — consider a modest rate offer and trim idle shifts to protect margin.";
+    outAdvice.textContent = advice;
+
+    /* control value labels */
+    vBase.textContent = state.base + "%";
+    vEvent.textContent = eventWord(state.event);
+    vWeather.textContent = weatherWord(state.weather);
+    vFlight.textContent = (state.flight >= 0 ? "+" : "") + state.flight + "%";
+    vRate.textContent = fmtINR(state.rate);
+  }
+
+  function bindRange(el, key) {
+    el.addEventListener("input", function () {
+      state[key] = parseInt(el.value, 10);
+      render();
+    });
+  }
+  bindRange(elBase, "base");
+  bindRange(elEvent, "event");
+  bindRange(elWeather, "weather");
+  bindRange(elFlight, "flight");
+  bindRange(elRate, "rate");
+
+  /* horizon segmented control */
+  var seg = document.getElementById("horizonSeg");
+  seg.addEventListener("click", function (e) {
+    var btn = e.target.closest("button");
+    if (!btn) return;
+    seg.querySelectorAll("button").forEach(function (b) { b.classList.remove("on"); });
+    btn.classList.add("on");
+    state.days = parseInt(btn.getAttribute("data-days"), 10);
+    render();
+  });
+
+  render(); /* initial */
+
+  /* ---------- Waitlist form ---------- */
+  var form = document.getElementById("wlForm");
+  var email = document.getElementById("wlEmail");
+  var msg = document.getElementById("wlMsg");
+  var success = document.getElementById("wlSuccess");
+  var echo = document.getElementById("wlEcho");
+  var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var val = email.value.trim();
+    if (!emailRe.test(val)) {
+      form.classList.add("err");
+      msg.textContent = "Please enter a valid email address.";
+      email.focus();
+      return;
+    }
+    form.classList.remove("err");
+    msg.textContent = "";
+    echo.textContent = val;
+    form.style.display = "none";
+    success.style.display = "flex";
+    if (hasGSAP && !reduce) {
+      gsap.from(success, { y: 16, opacity: 0, duration: 0.5, ease: "power3.out" });
+    }
+  });
+  email.addEventListener("input", function () {
+    if (form.classList.contains("err") && emailRe.test(email.value.trim())) {
+      form.classList.remove("err");
+      msg.textContent = "";
+    }
+  });
+
+  /* mobile burger -> scroll to waitlist as a simple action */
+  document.querySelector(".burger").addEventListener("click", function () {
+    document.getElementById("waitlist").scrollIntoView({ behavior: "smooth" });
+  });
+})();
+</script>
+</body>
+</html>
